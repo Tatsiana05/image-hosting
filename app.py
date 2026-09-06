@@ -1,5 +1,5 @@
 import logging
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from email.parser import BytesParser
 from email.policy import default
 from pathlib import Path
@@ -116,7 +116,7 @@ class ImageHostingHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
 
-server = HTTPServer(("localhost", 8000), ImageHostingHandler)
+server = ThreadingHTTPServer(("0.0.0.0", 8000), ImageHostingHandler)
 
 print("Server started at http://localhost:8000")
 
