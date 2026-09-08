@@ -6,6 +6,7 @@ services:
     volumes:
       - images:/app/images
       - logs:/app/logs
+      - ./users.json:/app/users.json
 
   nginx:
     image: nginx:alpine
