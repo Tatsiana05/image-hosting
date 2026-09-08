@@ -4,6 +4,12 @@ from email.parser import BytesParser
 from email.policy import default
 from pathlib import Path
 import uuid
+from json_tools import read_json, write_json
+from urllib.parse import parse_qs
+
+
+USERS_FILE = "users.json"
+
 
 logging.basicConfig(
     filename="logs/app.log",
@@ -16,25 +22,62 @@ logging.basicConfig(
 class ImageHostingHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/":
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.end_headers()
+            filename = "static/index.html"
 
-            with open("static/index.html", "r", encoding="utf-8") as file:
-                html = file.read()
+        elif self.path == "/about":
+            filename = "static/about.html"
 
-            self.wfile.write(html.encode("utf-8"))
+        elif self.path == "/products":
+            filename = "static/products.html"
 
         else:
             self.send_response(404)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
+            self.wfile.write(b"<h1>404 Not Found</h1>")
+            return
 
-            self.wfile.write(
-                "<h1>404 - Page not found</h1>".encode("utf-8")
-            )
+        with open(filename, "rb") as file:
+            content = file.read()
+
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.end_headers()
+        self.wfile.write(content)
 
     def do_POST(self):
+        if self.path == "/users":
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length).decode("utf-8")
+
+            data = parse_qs(body)
+
+            name = data.get("name", [""])[0].strip()
+            lastname = data.get("lastname", [""])[0].strip()
+
+            if not name or not lastname:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b"Name and lastname are required")
+                return
+
+            users = read_json(USERS_FILE)
+
+            users.append({
+                "name": name,
+                "lastname": lastname
+            })
+
+            write_json(USERS_FILE, users)
+
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(
+                f"<h1>Thank you, {name} {lastname}!</h1>".encode("utf-8")
+            )
+            return
+
         if self.path == "/upload":
             content_type = self.headers.get("Content-Type")
 

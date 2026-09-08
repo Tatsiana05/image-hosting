@@ -2,14 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Image Hosting</title>
+    <title>Home</title>
 </head>
 <body>
-    <h1>Upload an image</h1>
 
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="image" accept=".jpg,.png,.gif">
-        <button type="submit">Upload</button>
+    <nav>
+        <a href="/">Home</a> |
+        <a href="/about">About</a> |
+        <a href="/products">Products</a>
+    </nav>
+
+    <h1>Home</h1>
+
+    <form action="/users" method="post">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <br><br>
+
+        <label for="lastname">Lastname:</label>
+        <input type="text" id="lastname" name="lastname" required>
+
+        <br><br>
+
+        <button type="submit">Send</button>
     </form>
+
 </body>
 </html>
